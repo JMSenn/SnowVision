@@ -51,7 +51,7 @@ class Site(models.Model):
 
     def get_location(self, location):
         url = 'https://maps.googleapis.com/maps/api/geocode/json'
-        params = {'sensor': 'false', 'address': location,'key':"AIzaSyAiIziHoNgvdOUDWJydE1vQVQDCu8DUCAU"}
+        params = {'sensor': 'false', 'address': location,'key':""}
         r = requests.get(url, params=params)
         if(r.json()["status"]=="OK"):
             results = r.json()['results']
