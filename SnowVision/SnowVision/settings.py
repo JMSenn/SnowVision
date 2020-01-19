@@ -34,7 +34,7 @@ with open(BASE_DIR + '/db_key.txt') as f:
     DB_PASSWORD = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['snow.senn.dev', '167.172.153.192', 'localhost']
 
