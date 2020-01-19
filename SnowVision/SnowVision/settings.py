@@ -39,7 +39,6 @@ DEBUG = False
 ALLOWED_HOSTS = ['snow.senn.dev', '167.172.153.192', 'localhost']
 
 RECAPTCHA_PRIVATE_KEY = '6Ld_GywUAAAAAI6EZZZy8WWkKk_paIYxCxV8VWY4'
-RECAPTCHA_PUBLIC_KEY = '6Ld_GywUAAAAAIkhTUyYbiUkR418JSD_xpSSg7Qz'
 
 # Application definition
 INSTALLED_APPS = [
