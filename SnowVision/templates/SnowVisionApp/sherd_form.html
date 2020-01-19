@@ -1,0 +1,115 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+{% block javascript %}
+
+  <script src="{% static "javascript/filterselect.js" %}"type="text/javascript"></script>
+
+  <script type="text/javascript">
+
+    $(".js-example-basic-multiple").select2();
+    $(".js-example-basic-single").select2();
+
+    $( document ).ready(function(){
+
+
+      $.ajax({
+      url: '/snowvision/filter/collection',
+      dataType: 'json',
+
+      success: function(data){
+
+        $('#id_collection option:gt(0)').remove();
+
+        for (var i=0; i<data.length; i++){
+          $('#id_collection')
+            .append( $("<option></option>")
+            .attr("value",data[i]["id"])
+            .text(data[i]["name"]) );
+        } // for (var i=0; i<data.length; i++){
+      } // success
+    }) //$.ajax({
+})
+    if ({{ old_data }} == 1) {
+      console.log({{old_data}});
+      $('#id_site').val("{{old_site}}").trigger('change.select2');
+
+      $('#id_project').val("{{old_project}}").trigger('change.select2');
+
+      $('#id_context').val("{{old_context}}").trigger('change.select2');
+      $('#id_design').val("{{old_design}}").trigger('change.select2');
+
+      $('#id_project').attr('disabled', false);
+      $('#id_context').attr('disabled', false);
+    }
+
+    $('#id_site').change( function() {  filterproject($(this)); });
+    $('#id_project').change( function() { filtercontext($(this)); });
+
+  </script>
+{% endblock %}
+
+
+{%block body_block%}
+{%if request.user.is_authenticated%}
+<div class="container">
+
+  <form class="col-lg-8" enctype="multipart/form-data" method="post">
+    {%if not form.instance.pk%}
+    <h1>Submit Your Sherd</h1>
+    <p>Contribute your sherd pictures to our database and help build our network of knowledge! </p>
+    {% csrf_token %}
+
+    <div class="form-group row">
+      <label for="site">Site</label>
+      <select id="id_site" name = "site" class="js-example-basic-single">
+        <option class="option" name=""></option>
+          {% for site in site_list %}
+          <option value = {{site.pk}} id = {{site.pk}}{{site.name}}><class="option" >{{site.name}} </option>
+          {% endfor %}
+      </select>
+
+      <label for="project">Project</label>
+      <select id="id_project" name = "project" class="js-example-basic-single" disabled="disabled" >
+        <option class="option" name=""></option>
+          {% for project in project_list %}
+          <option value = {{project.pk}} id = {{project.pk}}{{project.pk}}><class="option">{{project.name}}</option>
+          {% endfor %}
+      </select>
+    </div>
+
+    {%else%}
+    <h1>Update Your Sherd</h1>
+    <p>Manage the fields and privacy of your sherd here</p>
+    {%endif%}
+    {% for field in form %}
+
+    <div class="form-group row">
+      {%if not request.user.is_authenticated and field.name == "private"%}
+
+      Log in or register to be able to save your submissions and keep them private
+      {%else%}
+        {{ field.label_tag }} {{field}}
+        {{field.errors}}
+        {%if field.name != "context"%}
+          <small class="text-muted">{{ field.help_text}}</small>
+        {%else%}
+          <small class="text-muted">Don't see your context here?
+          <a href="{% url 'SnowVisionApp:create_context' %}">Create a new contex</a> </small>
+        {%endif%}
+      {%endif%}
+    </div>
+    {% endfor %}
+    <div class="form-group row">
+      <label>Duplicate</label> <input type="checkbox" name="save" value="save">
+      <p><small class="text-muted">Want to submit a similar sherd? Check this box to stay on the page and save key fields</small></p>
+    </div>
+
+    <input type="submit" class = "btn btn-primary" value="Submit">
+
+  </form>
+</div>
+{%else%}
+<p>Please <a href="{%url 'login'%}">login</a> or <a href="{%url 'signup'%}">register </a>to submit a sherd</p>
+{%endif%}
+{%endblock%}

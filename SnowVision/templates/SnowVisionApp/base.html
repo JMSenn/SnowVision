@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    {% block headblock %} {% endblock %}
+
+
+    <!-- Boot Strap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{% static "css/modern-business.css" %}">
+    <!-- Style Sheet for select2, form select library  -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <!-- base html style sheet  -->
+    <link rel="stylesheet" href="{% static "css/base.css" %}">
+
+
+    <!-- Jquery library -->
+    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="crossorigin="anonymous"></script>
+
+    <!-- Bootstrap library -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!-- Select2 Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <div id="header">
+      <!-- Header Banner -->
+      <div id="banner">
+        <img id="banner-img" src="{% static "images/SampleBanner.png" %}" alt="Image Not Found">
+      </div>
+
+      <!-- Navigation bar -->
+      <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+        <div class="container">
+
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#nav-collapse">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+              </button>
+              <a  class ="navbar-brand" href="{%url 'index'%}">World Engraved</a>
+          </div>
+
+          <!-- Collect the nav links, forms, and other content for toggling -->
+          <div class="collapse navbar-collapse" id="nav-collapse">
+            <ul class = "nav navbar-nav">
+
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="{% url 'about' %}">Our Project</a></li>
+                  <li><a href="{% url 'research' %}">Research</a></li>
+                  <li><a href="{% url 'algorithm'%}">SnowVision</a></li>
+                </ul>
+              </li>
+
+
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Query Database <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li><a href="{%url 'SnowVisionApp:query_database'%}">Query Sherds</a></li>
+                  <li><a href="{%url 'SnowVisionApp:query_designs'%}">Query Designs</a></li>
+                </ul>
+              </li>
+
+              <li><a  class ="navbar-link" href="{%url 'SnowVisionApp:uploadSherd'%}">Submit A Sherd</a></li>
+              <li><a class = "navbar-link" href="{%url 'SnowVisionApp:sherd_map'%}">Map</a></li>
+
+              {% if user.is_authenticated %}
+              <li><a class = "navbar-link" href="{%url 'user_profile'%}">Profile</a></li>
+                {% if user.is_staff %}
+                  <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                {% endif %}
+              <li><a class = "navbar-link" href="{%url 'logout'%}">Logout</a></li>
+              {% else %}
+              <li><a class = "navbar-link" href="{%url 'login'%}">Login</a></li>
+              <li><a class = "navbar-link" href="{%url 'signup'%}">Register</a></li>
+              {% endif %}
+            </ul>
+          </div>
+
+
+        </div>
+      </nav>
+
+    </div>   <!-- <div id="header"> -->
+
+    <div class="container" id="content">
+      {% block body_block %}{% endblock %}
+    </div>
+
+    {% block javascript %} {% endblock %}
+
+
+    <hr>
+
+    <div id="footer">
+      <div class="container">
+          <div class="row">
+              <h5 class="footertext">Our Sponsors</h5>
+              <br>
+                <div class="col-sm-4">
+                  <center>
+                    <a class="sponsor" href="https://www.nsf.gov/">
+                      <img class="thumbnail-img" src="{% static "images/nsf_logo_transparent.png" %}" alt="Image Not Found">
+                    </a>
+                    <br>
+                    <h6 class="footertext">National Science Foundation</h6>
+                    
+		  </center>
+                </div>
+                <div class="col-md-4">
+                  <center>
+                    <a class="sponsor" href="https://www.ncptt.nps.gov/">
+                      <img class="thumbnail-img" src="{% static "images/ncptt.png"%}" alt="Image Not Found">
+                    </a>
+                    <br>
+                    <h6 class="footertext">National Center for Preservation Technology and Training</h6>
+                    <!-- <p class="footertext">All the images here are hand drawn by this man.<br> -->
+                  </center>
+                </div>
+                <div class="col-md-4">
+                  <center>
+                    <a class="sponsor" href="https://www.sc.edu/">
+                      <img class="thumbnail-img" src="{% static "images/usc_rgb.png" %}" alt="Image Not Found">
+                    </a>
+                    <br>
+                    <h6 class="footertext">University of South Carolina</h6>
+                    <!-- <p class="footertext">This pretty site and the copy it holds are all thanks to this guy.<br> -->
+                  </center>
+                </div>
+              </div>
+              <div class="row">
+              <!-- <p><center><a href="#">Contact Stuff Here</a> -->
+              <p class="footertext">Snow Vision© 2017. All right reserved.</p></center></p>
+          </div>
+      </div>
+  </div>
+  </body>
+
+</html>

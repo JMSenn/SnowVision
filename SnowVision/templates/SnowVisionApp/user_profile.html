@@ -1,0 +1,117 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+{% block javascript %}
+<script src="{% static "javascript/tableModal.js" %}" type="text/javascript"></script>
+
+<script type="text/javascript">
+  $(".hideme").hide();
+</script>
+{% endblock %}
+
+{% block body_block %}
+{% if request.user.is_authenticated %}
+  <div class="page-header container">
+    <h1>Welcome {{request.user.username}}</h1>
+    <h4>User Since: {{request.user.date_joined}}</h4>
+  </div>
+
+  {%if user_collections%}
+  <div class="container" >
+    <h4>Your Sherd Collections:</h4>
+    <table class="table table-striped">
+      <thead>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Private</th>
+        <th>Collection Detail Page</th>
+      </thead>
+    <tbody>
+      {%for collection in user_collections%}
+        <tr>
+          <td scope ="row">{{collection.name}}</td>
+          <td>{{collection.description}}</td>
+          <td>{{collection.private}}</td>
+          <td>
+          <a href="{%url 'collectiondetail' collection.pk%}">Collection Detail Page</a>
+          <form class="" action="{%url 'SnowVisionApp:deletecollection' collection.pk%}" method="post">
+            {% csrf_token %}
+            <p><input type="submit" name="" value="Delete"></p>
+          </form>
+          </td>
+        </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+  </div>
+  {%else%}
+  No Sherd Collections
+  {%endif%}
+  <form class="col-lg-8" action="{%url 'SnowVisionApp:create_collection'%}" method="post">
+    {% csrf_token %}
+    <input type="text" name="create_collection" value="">
+    <input type="submit" class = "btn btn-primary" value="Create New Collection">
+  </form>
+
+  {%if user_contexts%}
+  <p>Your Context Submissions:</p>
+    <div class="container">
+      <table id="user-sherd-table" class="table table-striped">
+        <thead>
+          <th>Name</th>
+          <th>Site</th>
+          <th>Project</th>
+          <th>Recovery Method</th>
+          <th>Screen Type</th>
+          <th>Curator</th>
+          <th>Northing</th>
+          <th>Easting</th>
+          <th>Manage</th>
+          <!-- PUT MORE HEADERS HERE -->
+        </thead>
+
+        <tbody>
+          {% for context in user_contexts %}
+          <tr>
+            <td>{{context.name}}</td>
+            <td><a href="{%url 'SnowVisionApp:site_detail' context.site.pk%}">{{context.site.name}}</a></td>
+            <td><a href="{%url 'SnowVisionApp:site_detail' context.project.pk%}">{{context.project.name}}</a></td>
+            <td>{{context.recovery_method.name}}</td>
+            <td>{{context.screen_type.name}}</td>
+            <td>{{context.curator.name}}</td>
+            <td>{{context.northing}}</td>
+            <td>{{context.easting}}</td>
+            <td><form class="" action="{%url 'SnowVisionApp:update_context' context.pk%}" method="post">
+              {% csrf_token %}
+              <p><input type="submit" name="" value="Update"></p>
+            </form></td>
+          </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+</div>
+{%else%}
+No Contexts Submitted
+{%endif%}
+
+{%else%}
+  Please login to see your information.
+{%endif%}
+
+<!-- Modal Class -->
+<div class="modal fade" id="tableModal" role="dialog">
+    <div class="modal-dialog">
+        <div class = "modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">×</a>
+                <h3 id="designID"></h3>
+            </div>
+            <div id="modalImage" class="modal-body"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

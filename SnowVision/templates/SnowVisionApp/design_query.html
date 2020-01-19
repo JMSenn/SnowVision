@@ -1,0 +1,265 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+{% block headblock %}
+  <title>Design Query</title>
+  <link rel="stylesheet" href="{% static "css/map.css" %}">
+{% endblock %}
+
+{% block javascript%}
+<script src="{% static "javascript/tableModal.js" %}" type="text/javascript"></script>
+<script type="text/javascript">
+
+  $(".js-example-basic-multiple").select2();
+  $(".js-example-basic-single").select2();
+  $(".hideme").hide();
+
+  function initMap(){
+    var uluru = {lat: 34.000710, lng: -81.034814};
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 6,
+      center: uluru,
+      mapTypeId: 'terrain',
+    });
+    populateMap(map);
+  }
+
+  function populateMap(map){
+    var infowindow =new google.maps.InfoWindow({
+    });
+    {% for sherd in sherds_with_designs %}
+    // logic to filter through here and replace Design formatting
+    // {% if }
+
+      var contentString{{  sherd.context.site.pk }} = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<div id="bodyContent">'+
+            '<h1 id="firstHeading" class="firstHeading">{{ sherd.context.site.name }}</h1>'+
+            '<div id="bodyContent">'+
+            '<p>Site Number: {{ sherd.context.site.number}}</p>'+
+            '<p>Eco Region Three: {{ sherd.context.site.eco_region_four.eco_region_three.region_type}}</p>'+
+            '<p>Eco Region Four: {{ sherd.context.site.eco_region_four.region_type}}</p>'+
+            '<p>Location: {{ sherd.context.site.state_and_county}}</p>'+
+            '</div>'+
+            '</div>';
+
+      var marker{{ sherd.context.site.pk }} = new google.maps.Marker({
+          map: map,
+          position: {lat: {{  sherd.context.site.lat }} , lng: {{ sherd.context.site.lng }}}
+        });
+      marker{{ sherd.context.site.pk }}.addListener('click', function() {
+        infowindow.setContent(contentString{{ sherd.context.site.pk }});
+        infowindow.open(map, marker{{ sherd.context.site.pk }});
+      });
+    {% endfor %}
+  }
+</script>
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAiIziHoNgvdOUDWJydE1vQVQDCu8DUCAU&callback=initMap">
+</script>
+
+{% endblock %}
+
+
+
+{%block body_block%}
+
+<div class="container">
+  <h1>Design Search</h1>
+  <p>Fill in the search form below to search the sherd designs within our database
+     and return the corresponding sherd design entries</p>
+</div>
+
+<div class="container">
+  <div id="design-query" style="width: 60%; float: left;">
+    <form action = "{%url 'SnowVisionApp:query_designs'%}" method= "get">
+
+      <label for="number">Design Name</label>
+      <select id="number" name = "number" class="form-control js-example-basic-multiple"
+        multiple="multiple">
+        <option class="option" name ='empty'></option>
+          {% for design in design_complete_list %}
+          <option value={{design.pk}} > {{design.number}} </option>
+          {% endfor %}
+        </select>
+      <small id="NameHelp" class="text-muted">
+        <p>Returns designs with name or similar to name</p>
+      </small>
+
+      <label for="site">Site</label>
+      <select id="site" name = "site" class="form-control js-example-basic-multiple"
+        multiple="multiple">
+        <option class="option" name ='empty'></option>
+          {% for site in site_list %}
+          <option value={{site.pk}} > {{site.name}} </option>
+          {% endfor %}
+        </select>
+      <small id="SiteHelp" class="text-muted">
+        <p>Returns designs within each selected site joined</p>
+      </small>
+
+      <label for="project">Project</label>
+      <select id="project" name = "project" class="form-control js-example-basic-multiple"
+        multiple="multiple">
+          <option class="option" name ='empty'></option>
+          {% for project in project_list %}
+          <option value={{project.pk}}>{{project.name}}</option>
+          {% endfor %}
+        </select>
+      <small id="ProjectHelp" class="text-muted">
+        <p>Returns designs within each selected project joined</p>
+      </small>
+
+      <label for="elements">Design Elements</label>
+      <select id="elements" name = "elements" class="form-control js-example-basic-multiple"
+        multiple="multiple">
+        <option class="option" name ='empty'></option>
+          {% for design_element in design_element_list %}
+          <option value={{design_element.pk}} > {{design_element.name}} </option>
+          {% endfor %}
+      </select>
+      <small id="ElementHelp" class="text-muted">
+        <p>Returns sherds containing ALL  of the selected elements</p>
+      </small>
+
+      <label for="line_filler">Line Filler</label>
+      <select id="line_filler" name = "line_filler" class="form-control">
+          <option class="option" name ='empty'></option>
+          <option value=True>True</option>
+          <option value=False>False</option>
+        </select>
+      <small class="text-muted">
+        <p>True or False</p>
+      </small>
+
+
+      <label for="completeness">Completeness</label>
+      <select id="completeness" name = "completeness" class="form-control">
+          <option class="option" name ='empty'></option>
+          <option value=True>{{True}}</option>
+          <option value=False>False</option>
+        </select>
+      <small class="text-muted">
+        <p>True or False</p>
+      </small>
+
+      <p></p>
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+
+  <div id="map" style="width: 38%; float:right;">
+  </div>
+</div>
+
+
+
+<div class="container">
+  {%if request.GET%}
+  {% if design_list %}
+
+  <form id="csv-form" action='{% url "SnowVisionApp:get_csv" %}' method="post">
+      <input type="text hidden" name="object_type" value="design" class="hideme">
+      {% csrf_token %}
+      {% for design in design_list %}
+        <input type="text hidden" name="pk" value="{{ design.pk }}" class="hideme" readonly="readonly">
+      {% endfor %}
+      <input type="submit" value="Download CSV" class="btn btn-default"/>
+  </form>
+
+  <form id="csv-form" action='{% url "SnowVisionApp:get_images" %}' method="post">
+      <input type="text hidden" name="object_type" value="design" class="hideme">
+      {% csrf_token %}
+      {% for design in design_list %}
+        <input type="text hidden" name="pk" value="{{ design.pk }}" class="hideme" readonly="readonly">
+      {% endfor %}
+      <input type="submit" value="Download Images" class="btn btn-default"/>
+  </form>
+
+      <table class="table table-striped">
+        <thead>
+          <th>#</th>
+          <th>Design Elements</th>
+          <th>Line Filler</th>
+          <th>Completeness</th>
+          <th>Framing</th>
+          <th>Artist</th>
+          <th>Greyscale Image</th>
+          <th>References</th>
+          <th>More Information</th>
+          <!-- PUT MORE HEADERS HERE -->
+        </thead>
+
+        <tbody>
+          {% for design in design_list %}
+            <tr>
+              <th scope="row">{{ design.pk }}</th>
+                <td>{% for element in design.elements.all %}
+                    {{element.name}}
+                    {%endfor%}
+                </td>
+
+                <td>{{ design.line_filler }}</td>
+                <td>{{ design.completeness }}</td>
+                <td>{{ design.framing }}</td>
+                <td>{{ design.artist }}</td>
+                <td class="table-thumbnail">
+                  {% if design.greyscale_image %}
+                    <a href="#" id="{{ design }}" data-toggle="modal" data-target="#tableModal">
+                      <img class="thumbnail-img"  src="{{ design.greyscale_image.url }}" alt="Not Found">
+                    </a>
+
+                  {% endif %}
+                </td>
+                <td>
+                {%for reference in design.design_reference.all%}
+                {{reference.title}}
+                {%endfor%}
+                </td>
+                <td><a href="{% url 'SnowVisionApp:design_detail' design.pk %}">Detail Page</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form id="csv-form" action='{% url "SnowVisionApp:get_csv" %}' method="post">
+          <input type="text hidden" name="object_type" value="design" class="hideme">
+          {% csrf_token %}
+          {% for design in design_list %}
+            <input type="text hidden" name="pk" value="{{ design.pk }}" class="hideme" readonly="readonly">
+          {% endfor %}
+          <input type="submit" value="Download CSV" class="btn btn-default"/>
+      </form>
+
+      <form id="csv-form" action='{% url "SnowVisionApp:get_images" %}' method="post">
+          <input type="text hidden" name="object_type" value="design" class="hideme">
+          {% csrf_token %}
+          {% for design in design_list %}
+            <input type="text hidden" name="pk" value="{{ design.pk }}" class="hideme" readonly="readonly">
+          {% endfor %}
+          <input type="submit" value="Download Images" class="btn btn-default"/>
+      </form>
+</div>
+    {% else %}
+      <li>No designs matching that query were found</li>
+  </ul>
+  {% endif %}
+  {% endif %}
+
+<div class="modal fade" id="tableModal" role="dialog">
+    <div class="modal-dialog">
+        <div class = "modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">×</a>
+                <h3 id="designID"></h3>
+            </div>
+            <div id="modalImage" class="modal-body"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

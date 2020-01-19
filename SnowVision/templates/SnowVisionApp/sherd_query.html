@@ -1,0 +1,282 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+{% block headblock %}
+  <title>Sherd Query</title>
+  <link rel="stylesheet" href="{% static "css/map.css" %}">
+{% endblock %}
+
+{% block javascript%}
+<script src="{% static "javascript/tableModal.js" %}"type="text/javascript"></script>
+<script type="text/javascript">
+
+  $(".js-example-basic-multiple").select2();
+  $(".js-example-basic-single").select2();
+  $(".hideme").hide();
+
+  function initMap(){
+    var uluru = {lat: 34.000710, lng: -81.034814};
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 6,
+      center: uluru,
+      mapTypeId: 'terrain',
+    });
+    populateMap(map);
+  }
+
+  function populateMap(map){
+    var infowindow =new google.maps.InfoWindow({
+    });
+    {% for sherd in sherd_list %}
+
+    // logic to filter through here and replace Design formatting
+    // {% if }
+
+      var contentString{{  sherd.context.site.pk }} = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<div id="bodyContent">'+
+            '<h1 id="firstHeading" class="firstHeading">{{ sherd.context.site.name }}</h1>'+
+            '<div id="bodyContent">'+
+            '<p>Site Number: {{ sherd.context.site.number}}</p>'+
+            '<p>Eco Region Three: {{ sherd.context.site.eco_region_four.eco_region_three.region_type}}</p>'+
+            '<p>Eco Region Four: {{ sherd.context.site.eco_region_four.region_type}}</p>'+
+            '<p>Location: {{ sherd.context.site.state_and_county}}</p>'+
+            '</div>'+
+            '</div>';
+
+      var marker{{ sherd.context.site.pk }} = new google.maps.Marker({
+          map: map,
+          position: {lat: {{  sherd.context.site.lat }} , lng: {{ sherd.context.site.lng }}}
+        });
+      marker{{ sherd.context.site.pk }}.addListener('click', function() {
+        infowindow.setContent(contentString{{ sherd.context.site.pk }});
+        infowindow.open(map, marker{{ sherd.context.site.pk }});
+      });
+    {% endfor %}
+  }
+</script>
+
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAiIziHoNgvdOUDWJydE1vQVQDCu8DUCAU&callback=initMap">
+</script>
+
+{% endblock %}
+
+{% block body_block %}
+
+<div class="container">
+  <h1>Sherd Search</h1>
+  <p>Fill in the search form below to search the sherd submissions within our database
+     and return the corresponding sherd entries</p>
+</div>
+
+<div class="container">
+  <div id="sherd-query" style="width: 60%; float: left;">
+
+  <form action = "{% url 'SnowVisionApp:query_database' %}" method="get">
+
+    <label for="site">Site</label>
+    <select id="site" name = "site" class="form-control js-example-basic-multiple"
+      multiple="multiple">
+      <option class="option" name ='empty'></option>
+        {% for site in site_list %}
+        <option value={{site.pk}} > {{site.name}} </option>
+        {% endfor %}
+      </select>
+      <small id="SiteHelp" class="text-muted">
+        <p>Returns sherds within each selected site joined</p>
+      </small>
+
+
+    <label for="project">Project</label>
+    <select id="project" name="project" class="form-control js-example-basic-multiple"
+      multiple="multiple" aria-describedby="ProjectHelp">
+        <option class="option" name='empty'></option>
+        {% for project in project_list %}
+        <option value={{project.pk}}>{{project.name}}</option>
+        {% endfor %}
+      </select>
+      <small id="ProjectHelp" class="text-muted">
+        <p>Returns sherds within each selected project joined</p>
+      </small>
+
+    <label for="context">Context</label>
+    <select id="context" name="context" class="form-control js-example-basic-multiple"
+      multiple="multiple">
+        <option class="option" name='empty'></option>
+        {% for context in context_list %}
+        <option value={{context.pk}}>{{context.name}}</option>
+        {% endfor %}
+      </select>
+      <small id="ContextHelp" class="text-muted">
+        <p>Returns sherds within each selected context joined</p>
+      </small>
+
+    <label for="eco_region_three">Eco Region Three</label>
+    <select id="eco_region_three" name="eco_region_three" class="form-control js-example-basic-multiple" multiple="multiple">
+      <option class="option" name='empty'></option>
+      {% for eco_region_three in eco_region_three_list %}
+        <option value={{eco_region_three.pk}}>{{eco_region_three.region_type}}</option>
+      {% endfor %}
+    </select>
+    <small id="Eco_Region_ThreeHelp" class="text-muted">
+      <p>Returns sherds within each selected eco_region_three joined</p>
+    </small>
+
+    <label for="eco_region_four">Eco Region Four</label>
+    <select id="eco_region_four" name="eco_region_four" class="form-control js-example-basic-multiple" multiple="multiple">
+      <option class="option" name ='empty'></option>
+      {% for eco_region_four in eco_region_four_list %}
+        <option value={{eco_region_four.pk}}>{{eco_region_four.region_type}}</option>
+      {% endfor %}
+    </select>
+    <small id="Eco_Region_FourHelp" class="text-muted">
+      <p>Returns sherds within each selected eco_region_four joined</p>
+    </small>
+
+
+    <label for="design">Design</label>
+    <select id="design" name="design" class="form-control js-example-basic-multiple"
+      multiple="multiple">
+        <option class="option" name='empty'></option>
+        {% for design in design_list %}
+          <option value={{design.pk}}>{{design.pk}}</option>
+        {% endfor %}
+      </select>
+      <small id="DesignHelp" class="text-muted">
+        <p>Returns sherds containing ALL  of the selected designs</p>
+      </small>
+
+    <label for="recovery_method">Recovery Method</label>
+    <select id="recovery_method" name="recovery_method" class="form-control js-example-basic-multiple" multiple="multiple">
+      <option class="option" name='empty'></option>
+        {% for recovery_method in recovery_method_list %}
+          <option value={{recovery_method.pk}}>{{recovery_method.name}}</option>
+        {% endfor %}
+      </select>
+      <small id="RecoveryMethodHelp" class="text-muted">
+        <p>Returns sherds with selected recovery methods joined</p>
+      </small>
+      <p></p>
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+
+  <div id="map" style="width: 38%; float:right;">
+  </div>
+
+</div>
+
+<div  class="container" style="width: 100%">
+{% if request.GET %}
+{% if sherd_list %}
+
+<form id="csv-form" action='{% url "SnowVisionApp:get_csv" %}' method="post">
+    <input type="text hidden" name="object_type" value="sherd" class="hideme">
+    {% csrf_token %}
+    {% for sherd in sherd_list %}
+      <input type="text hidden" name="pk" value="{{ sherd.pk }}" class="hideme" readonly="readonly">
+    {% endfor %}
+    <input type="submit" value="Download CSV" class="btn btn-default"/>
+</form>
+
+<form id="image-form" action='{% url "SnowVisionApp:get_images" %}' method="post">
+    <input type="text hidden" name="object_type" value="sherd" class="hideme">
+    {% csrf_token %}
+    {% for sherd in sherd_list %}
+      <input type="text hidden" name="pk" value="{{ sherd.pk }}" class="hideme" readonly="readonly">
+    {% endfor %}
+    <input type ="submit" value="Download Images" class="btn btn-default">
+</form>
+
+  <table id="sherd-query-results" class="table table-striped">
+    <thead>
+      <th>#</th>
+      <th>Site</th>
+      <th>Project</th>
+      <th>Context</th>
+      <th>Known Design</th>
+      <th>Eco-Region Three</th>
+      <th>Eco-Region Four</th>
+      <th>Recovery Method</th>
+      <th>Curator</th>
+      <th>Sherd Image</th>
+      <th>More Information</th>
+      <!-- PUT MORE HEADERS HERE -->
+    </thead>
+
+    <tbody>
+      {% for sherd in sherd_list %}
+        <tr>
+          <th class="ineedthis" scope="row">{{ sherd.pk }}</th>
+          <td>{{ sherd.context.site.name}}</td>
+          <td>{{ sherd.context.project.name}}</td>
+          <td>{{ sherd.context.name }}</td>
+          <!-- Prints all matched designs w/ links or "No match" -->
+          {% if sherd.design %}
+            <td>
+              <a href="{%url 'SnowVisionApp:design_detail' sherd.design.pk %}">
+                {{sherd.design.number}},</a>
+              </td>
+          {% else %}
+          <td>No Design match</td>
+          {% endif %}
+
+          <td>{{ sherd.context.site.eco_region_four.eco_region_three.region_type }}</td>
+          <td>{{ sherd.context.site.eco_region_four.region_type }}</td>
+          <td>{{ sherd.context.recovery_method}}</td>
+          <td>{{ sherd.context.curator }}</td>
+          <td class="table-thumbnail">{% if sherd.rgb_image %}
+            <a href="#" id="{{ sherd }}" data-toggle="modal" data-target="#tableModal">
+              <img class="thumbnail-img"  src="{{ sherd.rgb_image.url }}" alt="Not Found">
+            </a>
+
+          {% endif %}</td>
+          <td><a href="{% url 'SnowVisionApp:sherd_detail' sherd.pk %}">Detail Page</a></td>
+          <!-- <td><a href="#">{{ sherd.context.}}</a></td> -->
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <form id="csv-form" action='{% url "SnowVisionApp:get_csv" %}' method="post">
+      <input type="text hidden" name="object_type" value="sherd" class="hideme">
+      {% csrf_token %}
+      {% for sherd in sherd_list %}
+        <input type="text hidden" name="pk" value="{{ sherd.pk }}" class="hideme" readonly="readonly">
+      {% endfor %}
+      <input type="submit" value="Download CSV" class="btn btn-default"/>
+  </form>
+
+  <form id="image-form" action='{% url "SnowVisionApp:get_images" %}' method="post">
+      <input type="text hidden" name="object_type" value="sherd" class="hideme">
+      {% csrf_token %}
+      {% for sherd in sherd_list %}
+        <input type="text hidden" name="pk" value="{{ sherd.pk }}" class="hideme" readonly="readonly">
+      {% endfor %}
+      <input type ="submit" value="Download Images" class="btn btn-default">
+  </form>
+
+{% else %}
+<p>No Sherds matching that query</p>
+{% endif %}
+{% endif %}
+</div>
+
+<div class="modal fade" id="tableModal" role="dialog">
+    <div class="modal-dialog">
+        <div class = "modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">×</a>
+                <h3 id="designID"></h3>
+            </div>
+            <div id="modalImage" class="modal-body"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{%endblock%}

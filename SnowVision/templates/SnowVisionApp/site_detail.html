@@ -1,0 +1,157 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+
+{% block headblock %}
+<link rel="stylesheet" href="{% static "css/image_formatting.css"%}">
+{% endblock %}
+
+{% block javascript %}
+<script src="{% static "javascript/tableModal.js" %}" type="text/javascript"></script>
+{% endblock %}
+
+{%block body_block%}
+
+<div class="container page-header">
+  <h1>Site {{ site_detail.number}}</h1>
+</div>
+<a href="#"><img src="" alt=""></a>
+
+<div id="detail-table" class="container">
+  <table class="table table-striped">
+    <tbody>
+      <tr><th>Site Name</th><td> {{ site_detail.name }}</td></tr>
+      <tr><th>Eco Region Three</th><td> {{site_detail.eco_region_four.eco_region_three.region_type}}</td></tr>
+      <tr><th>Eco Region Four: </th><td>{{site_detail.eco_region_four.region_type}}</td></tr>
+      <tr><th>County</th><td> {{site_detail.county}}</td></tr>
+      <tr><th>State</th><td> {{site_detail.state}}</td></tr>
+
+    </tbody>
+
+  </table>
+</div>
+
+<h1>{{ site_detail.designs }}</h1>
+
+<div class="container">
+  <h4>Designs Present at this site:</h4>
+  <button class="btn btn-default" data-toggle="collapse" data-target="#design-table">
+    Show/Hide Design Table</button>
+</div>
+
+<div id="design-table" class="container collapse">
+  <table class="table table-striped">
+    <thead>
+      <th>Number</th>
+      <th>Artist</th>
+      <th>Symmetry</th>
+      <th>Complete</th>
+      <th>Image</th>
+      <th>More Information</th>
+    </thead>
+
+    <tbody>
+      {% for design in designs %}
+
+        <tr>
+          <th scope="row">
+          {{ design.number }}
+          </th>
+          <td>{{ design.artist }}</td>
+          <td>{{ design.symmetry.name }}</td>
+          <td>{{ design.completeness }}</td>
+          <td class="table-thumbnail">{% if design.greyscale_image %}
+            <a href="#" id="{{ design }}" data-toggle="modal" data-target="#tableModal">
+              <img class="thumbnail-img"  src="{{ design.greyscale_image.url }}" alt="Not Found">
+            </a>
+          {% endif %}</td>
+          <td><a href="{% url 'SnowVisionApp:design_detail' design.pk %}">Detail Page</a></td>
+        </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="container">
+  <h4>Sherds Present at this site:</h4>
+  <button class="btn btn-default" data-toggle="collapse" data-target="#sherd-table">
+    Show/Hide Sherd Table</button>
+</div>
+
+<div id="sherd-table" class="container collapse">
+      <table class="table table-striped">
+        <thead>
+          <th>#</th>
+          <th>Site</th>
+          <th>Project</th>
+          <th>Context</th>
+          <th>Known Design</th>
+          <th>Eco-Region Three</th>
+          <th>Eco-Region Four</th>
+          <th>Recovery Method</th>
+          <th>Sherd Image</th>
+          <th>More Information</th>
+          <!-- PUT MORE HEADERS HERE -->
+        </thead>
+
+        <tbody>
+          {% for context in site_detail.context_set.all %}
+            {% for sherd in context.sherd_set.all %}
+            <tr>
+              <th scope="row">
+                {{ sherd.pk }}</th>
+              <td>{{ sherd.context.site.name}}</td>
+              <td>{{ sherd.context.project.name}}</td>
+              <td>{{ sherd.context.name }}</td>
+              <!-- Prints all matched designs w/ links or "No match" -->
+              <td>{{ sherd.design.name}}</td>
+              <td>{{ sherd.context.site.eco_region_four.eco_region_three.region_type }}</td>
+              <td>{{ sherd.context.site.eco_region_four.region_type }}</td>
+
+              <td>{{ sherd.context.recovery_method.name}}</td>
+              <td>{{ sherd.context.curator }}</td>
+              <td class="table-thumbnail">{% if sherd.rgb_image %}
+                <a href="#" id="{{ sherd }}" data-toggle="modal" data-target="#tableModal">
+                  <img class="thumbnail-img"  src="{{ sherd.rgb_image.url }}" alt="Not Found">
+                </a>
+              {% endif %}</td>
+              <td><a href="{% url 'SnowVisionApp:sherd_detail' sherd.pk %}">Detail Page</a></td>
+              <!-- <td><a href="#">{{ sherd.context.}}</a></td> -->
+            </tr>
+            {% endfor %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- <button id="csv-only" class="btn btn-default" type="button" name="button">Download as CSV File</button>
+      <button id="csv-images" class="btn btn-default" type="button" name="button">Download CSV and Sherd Images</button> -->
+
+</div>
+
+
+
+<div class="container">
+  <p></p>
+  <p></p>
+  <p>For more sites see our <a href="{%url 'SnowVisionApp:sherd_map'%}">map</a></p>
+</div>
+
+
+<div class="modal fade" id="tableModal" role="dialog">
+    <div class="modal-dialog">
+        <div class = "modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">×</a>
+                <h3 id="designID"></h3>
+            </div>
+            <div id="modalImage" class="modal-body"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{%endblock%}

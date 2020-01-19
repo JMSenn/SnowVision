@@ -1,0 +1,109 @@
+{%extends "SnowVisionApp/base.html"%}
+{% load staticfiles %}
+
+{% block javascript %}
+<script src="{% static "javascript/tableModal.js" %}" type="text/javascript"></script>
+
+<script type="text/javascript">
+  $(".hideme").hide();
+</script>
+{% endblock %}
+
+{%block body_block%}
+  {%if request.user.is_authenticated%}
+  <h1>{{sherd_collection_detail.name}}</h1>
+
+
+<div class="container">
+  <h4>Sherds in This Collection:</h4>
+
+  {% if collection_sherds %}
+  <form id="csv-form" action='{% url "SnowVisionApp:get_csv" %}' method="post">
+      <input type="text hidden" name="object_type" value="sherd" class="hideme">
+      {% csrf_token %}
+      {% for sherd in collection_sherds %}
+        <input type="text hidden" name="pk" value="{{ sherd.pk }}" class="hideme" readonly="readonly">
+      {% endfor %}
+      <input type="submit" value="Download CSV" class="btn btn-default"/>
+  </form>
+  <form id="image-form" action='{% url "SnowVisionApp:get_images" %}' method="post">
+      <input type="text hidden" name="object_type" value="sherd" class="hideme">
+      {% csrf_token %}
+      {% for sherd in collection_sherds %}
+        <input type="text hidden" name="pk" value="{{ sherd.pk }}" class="hideme" readonly="readonly">
+      {% endfor %}
+      <input type ="submit" value="Download Images" class="btn btn-default">
+  </form>
+
+      <table id="user-sherd-table" class="table table-striped">
+        <thead>
+          <th>#</th>
+          <th>Private</th>
+          <th>Site</th>
+          <th>Project</th>
+          <th>Context</th>
+          <th>Design</th>
+          <th>Eco-Region Three</th>
+          <th>Eco-Region Four</th>
+          <th>Recovery Method</th>
+          <th>Curator</th>
+          <th>Sherd Image</th>
+          <th>Manage</th>
+          <!-- PUT MORE HEADERS HERE -->
+        </thead>
+
+        <tbody>
+          {% for sherd in collection_sherds %}
+            <tr>
+              <th scope="row">
+                <a href="{% url 'SnowVisionApp:sherd_detail' sherd.pk %}">{{ sherd.pk }}</a></th>
+              <td> {{ sherd.private }}</td>
+              <td><a href="{%url 'SnowVisionApp:site_detail' sherd.context.site.pk%}">{{ sherd.context.site.name}}</a></td>
+              <td>{{ sherd.context.project.name}}</td>
+              <td>{{ sherd.context.name }}</td>
+              <!-- Prints all matched designs w/ links or "No match" -->
+              {% if sherd.design %}
+                <td>
+                  <a href="{%url 'SnowVisionApp:design_detail' sherd.design.pk %}">
+                    {{sherd.design.number}},</a>
+                  </td>
+              {% else %}
+              <td>No Design match</td>
+              {% endif %}
+
+              <td>{{ sherd.context.site.eco_region_four.eco_region_three.region_type }}</td>
+              <td>{{ sherd.context.site.eco_region_four.region_type }}</td>
+              <td>{{ sherd.context.recovery_method.name}}</td>
+              <td>{{ sherd.context.curator }}</td>
+              <td class="table-thumbnail">{% if sherd.rgb_image %}
+                <a href="#" id="{{ sherd }}" data-toggle="modal" data-target="#tableModal">
+                  <img class="thumbnail-img"  src="{{ sherd.rgb_image.url }}" alt="Not Found">
+                </a>
+              {% endif %}</td>
+
+              <td>
+                <form class="" action="{%url 'SnowVisionApp:deleteSherd' sherd.pk%}" method="post">
+                  {% csrf_token %}
+                  <p><input type="submit" name="" value="Delete"></p>
+                </form>
+
+                <form class="" action="{%url 'SnowVisionApp:updateSherd' sherd.pk%}" method="post">
+                  {% csrf_token %}
+                  <p><input type="submit" name="" value="Update"></p>
+                </form>
+              </td>
+
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <!-- <button id="csv-only" class="btn btn-default" type="button" name="button">Download as CSV File</button>
+      <button id="csv-images" class="btn btn-default" type="button" name="button">Download CSV and Sherd Images</button> -->
+  {% else %}
+  <p>No Sherds in collection</p>
+  {% endif %}
+</div>
+  {%else%}
+  <p>Not authorized to view this page</p>
+  {%endif%}
+{%endblock%}

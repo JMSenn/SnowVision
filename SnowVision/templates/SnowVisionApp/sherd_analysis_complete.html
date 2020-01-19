@@ -1,0 +1,10 @@
+{% autoescape off %}
+Hi {{ user.username }},
+
+The sherd you have submitted has been analyzed.
+
+The matched designs can be found at the sherd detail page, here: "
+
+http://{{ domain }}{% url 'SnowVisionApp:sherd_detail' pk=pk %}
+
+{% endautoescape %}

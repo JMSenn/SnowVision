@@ -1,0 +1,43 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+{% block javascript %}
+<script src="{% static "javascript/filterselect.js" %}" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+  $(".js-example-basic-single").select2();
+  $(".js-example-basic-multiple").select2();
+
+  $('#id_site').change(function () { filterproject($(this)); });
+
+</script>
+
+{%endblock%}
+
+{% block body_block %}
+{% if request.user.is_authenticated %}
+
+  <form class="col-lg-8 col-lg-offset-2" enctype="multipart/form-data" method="POST">
+    {% csrf_token %}
+    {% if not form.instance.pk %}
+      <h1>Create a new context</h1>
+    {% else %}
+      <h1>Update Your Context</h1>
+    {% endif %}
+
+    {% for field in form %}
+      <div class="form-group row">
+          {{ field.errors }}
+          {{ field.label_tag }} {{ field }}
+      </div>
+    {% endfor %}
+
+    <input type="submit" class = "btn btn-primary" value="Submit">
+  </form>
+
+{% else %}
+<p>Please <a href="{%url 'login'%}">login</a> or <a href="{url 'signup'}">register</a> to submit a context</p>
+{% endif %}
+
+{% endblock %}

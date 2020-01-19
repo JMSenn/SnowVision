@@ -1,0 +1,41 @@
+{% extends 'SnowVisionApp/base.html' %}
+
+{% load staticfiles %}
+{% load recaptcha2 %}
+
+{% block headblock %}
+  {% recaptcha_init %}
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+
+  $(".js-example-basic-multiple").select2();
+  $(".js-example-basic-single").select2();
+</script>
+{% endblock %}
+
+{% block body_block%}
+<!-- align and size page  -->
+<div class="container center-block" style="width: 50%;">
+  <h2>Sign up</h2>
+  <form method="post" class="form-horizontal">
+    {% csrf_token %}
+
+    {% for field in form %}
+
+    <div class="form-group-row">
+      {{ field.errors }}
+
+      {{ field.label_tag }} {{ field }}
+      <small class="text-muted">{{ field.help_text }}</small>
+    </div>
+
+
+    {% endfor %}
+    <button type="submit">Sign up</button>
+  </form>
+  <p>Already have an account?<a href="{%url 'login'%}"> Log in here</a></p>
+</div>
+
+{% endblock %}

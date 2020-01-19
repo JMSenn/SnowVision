@@ -1,0 +1,79 @@
+{%extends "SnowVisionApp/base.html"%}
+{% load staticfiles %}
+
+{% block javascript %}
+<script src="{% static "javascript/tableModal.js" %}" type="text/javascript"></script>
+{% endblock %}
+
+{%block body_block%}
+  <div class="container page-header">
+    <h1>Design {{design_detail.number}}</h1>
+  </div>
+
+  <div id="detail-table" class="container">
+    <table align="left" style= "max-width: 50%;" class="table table-striped">
+      <tbody>
+        <tr><th>Symmetry</th><td>{{design_detail.symmetry}} </td></tr>
+        <tr><th>Line Filler</th><td>{{design_detail.line_filler}}</td></tr>
+        <tr><th>Completeness</th><td>{{design_detail.completeness}}</td></tr>
+        <tr><th>Framing</th><td>{{design_detail.framing}} </td></tr>
+        <tr><th>Artist</th><td>{{design_detail.artist}} </td></tr>
+        <tr>
+          <th>Greyscale Image</th>
+          <td class="table-thumbnail">
+          {% if design_detail.greyscale_image %}
+            <img class="thumbnail-img" src ={{design_detail.greyscale_image.url}} alt="missing">
+          {%else%}
+            <p>No Grey Scale Image Present</p>
+          {%endif%}
+          </td>
+        </tr>
+        <tr>
+        <th>Curved Image</th>
+        <td class="table-thumbnail">
+          {% if design_detail.curve_image %}
+            <a id="{{ design.number }}"data-toggle="modal" data-target="tableModal">
+              <img class="thumbnail-img" src ={{design_detail.curve_image.url}} alt="Image Not Found">
+            </a>
+          {%else%}
+            <p>No Curve Image Present</p>
+          {% endif %}
+        </td>
+        </tr>
+
+  <tr>
+    <th>Design Elements</th>
+    <td>
+      {%for element in design_detail.elements.all%}
+        {{element.name}},
+        {%endfor%}
+    </td>
+  </tr>
+  <tr>
+  <th>References</th>
+  <td>
+  {%for reference in design_detail.design_reference.all%}
+    <p>{{reference.journal.name}}:{{reference.title}}</p>
+  {%endfor%}
+  </td>
+  </tr>
+
+    </tbody>
+  </table>
+</div>
+
+<div class="modal fade" id="tableModal" role="dialog">
+    <div class="modal-dialog">
+        <div class = "modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">×</a>
+                <h3 id="designID"></h3>
+            </div>
+            <div id="modalImage" class="modal-body"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

@@ -1,0 +1,70 @@
+{% extends "SnowVisionApp/base.html" %}
+{% load staticfiles %}
+
+{% block body_block %}
+  <head>
+    <style>
+       #map {
+         height: 800px;
+         width: 100%;
+       }
+    </style>
+  </head>
+  <body>
+
+    <h1>Sherd Sites Map</h1>
+    <p>
+      This a map of the sites within our database. Click on a marker to see more information about each site.
+      Click on the corresponding link in each site to see more details about each site including
+      sherds and designs present at that site.
+     </p>
+    <div id="map"></div>
+    <script type = "text/javascript">
+      function initMap(){
+        var uluru = {lat: 34.000710, lng: -81.034814};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 6,
+          center: uluru,
+          mapTypeId: 'terrain',
+        });
+        populateMap(map);
+    }
+
+    function populateMap(map){
+      var infowindow =new google.maps.InfoWindow({
+      });
+      {% for site in site_list %}
+
+      var contentString{{site.pk}} = '<div id="content">'+
+            '<div id="siteNotice">'+
+            '</div>'+
+            '<div id="bodyContent">'+
+            '<a href="{%url 'SnowVisionApp:site_detail' site.pk %}"><h1 id="firstHeading" class="firstHeading">{{site.name}}</h1></a>'+
+            '<div id="bodyContent">'+
+            '<p>Site Number: {{site.number}}</p>'+
+            '<p>Eco Region Three: {{site.eco_region_four.eco_region_three.region_type}}</p>'+
+            '<p>Eco Region Four: {{site.eco_region_four.region_type}}</p>'+
+            '<p>Location: {{site.county}}, {{site.state}}</p>'+
+            '</div>'+
+            '</div>';
+
+      var marker{{site.pk}} = new google.maps.Marker({
+          map: map,
+          position: { lat: {{site.lat}} , lng: {{site.lng}} }
+      });
+      marker{{site.pk}}.addListener('click', function() {
+        infowindow.setContent(contentString{{site.pk}});
+        infowindow.open(map, marker{{site.pk}});
+      });
+
+      {% endfor %}
+    }
+
+
+    </script>
+
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAiIziHoNgvdOUDWJydE1vQVQDCu8DUCAU&callback=initMap">
+    </script>
+  </body>
+{%endblock%}
